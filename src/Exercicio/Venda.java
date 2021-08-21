@@ -4,8 +4,9 @@ public class Venda {
     String codigoVenda;
     String produto;
 
-    public Venda(String nomeLoja, int numeroVenda, String produto) {
+    public Venda(String nomeLoja, long numeroVenda, String produto) {
         this.codigoVenda = nomeLoja + numeroVenda;
         this.produto = produto;
+        System.out.println("Venda gerada: " + nomeLoja + numeroVenda);
     }
 }

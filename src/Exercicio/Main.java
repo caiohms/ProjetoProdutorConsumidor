@@ -8,13 +8,20 @@ public class Main {
 
     public static void main(String[] args) {
 
-        FilaVenda filaVenda = new FilaVenda();
+        // QUANTAS VENDAS CABEM NA FILA DE VENDAS?
+        final int tamanhoFila = 100;
 
-        Semaphore semaphoreFilaVendas = new Semaphore(1);
+        FilaVenda filaVenda = new FilaVenda(tamanhoFila);
 
-        Loja lojaA = new Loja("A", filaVenda, semaphoreFilaVendas);
+        Semaphore mutex = new Semaphore(1);
+        Semaphore itens = new Semaphore(0);
+        Semaphore espacos = new Semaphore(tamanhoFila);
 
-        Fabricante fabricanteA = new Fabricante("A", filaVenda, semaphoreFilaVendas);
+        Loja lojaA = new Loja("A", filaVenda, mutex, itens, espacos);
 
+        Fabricante fabricanteA = new Fabricante("A", filaVenda, mutex, itens, espacos);
+
+        lojaA.start();
+        fabricanteA.start();
     }
 }
