@@ -21,7 +21,6 @@ public class Loja extends Thread {
         this.espacos = espacos;
     }
 
-
     public void run() {
         while (true) {
             // Intervalo de tempo entre duas vendas consecutivas na mesma loja: entre 10 e 150 minutos.
@@ -42,9 +41,10 @@ public class Loja extends Thread {
     private void realizarVenda() throws InterruptedException {
         numeroVendas++;
         Venda venda = new Venda(name, numeroVendas, "A");
+        System.out.println("Loja " + name + " gerou venda " + name + numeroVendas);
 
         espacos.acquire();
-        mutex.acquire();
+        mutex.acquire(); // talvez esses semáforos devam ficar dentro da própria funcao insertVenda()
         filaVenda.insertVenda(venda);
         mutex.release();
         itens.release();

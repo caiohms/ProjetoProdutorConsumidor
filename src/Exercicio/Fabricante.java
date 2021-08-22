@@ -6,16 +6,21 @@ public class Fabricante extends Thread {
 
     String name;
     FilaVenda filaVenda;
-    Semaphore mutex;
-    Semaphore itens;
-    Semaphore espacos;
+    FilaEntrega filaEntregas;
+    Semaphore mutexVendas, itensVendas, espacosVendas, mutexEntregas, itensEntregas, espacosEntregas;
 
-    public Fabricante(String name, FilaVenda filaVenda, Semaphore mutex, Semaphore itens, Semaphore espacos) {
+    public Fabricante(String name, FilaVenda filaVenda, FilaEntrega filaEntregas, Semaphore mutexVendas,
+                      Semaphore itensVendas, Semaphore espacosVendas, Semaphore mutexEntregas, Semaphore itensEntregas,
+                      Semaphore espacosEntregas) {
         this.name = name;
         this.filaVenda = filaVenda;
-        this.mutex = mutex;
-        this.itens = itens;
-        this.espacos = espacos;
+        this.filaEntregas = filaEntregas;
+        this.mutexVendas = mutexVendas;
+        this.itensVendas = itensVendas;
+        this.espacosVendas = espacosVendas;
+        this.mutexEntregas = mutexEntregas;
+        this.itensEntregas = itensEntregas;
+        this.espacosEntregas = espacosEntregas;
     }
 
     public void run() {
@@ -27,15 +32,26 @@ public class Fabricante extends Thread {
 
             try {
 
-                itens.acquire();
-                mutex.acquire();
-                Venda vendaSendoProcessada = filaVenda.removeVenda();
-                mutex.release();
-                espacos.release();
+                itensVendas.acquire();
+                mutexVendas.acquire();
+                Venda venda = filaVenda.removeVenda();
+                mutexVendas.release();
+                espacosVendas.release();
 
-                System.out.println("Fabricante " + name + " processando venda " + vendaSendoProcessada.codigoVenda);
+                System.out.println("Fabricante " + name + " processando venda " + venda.codigoVenda);
 
-                Thread.sleep(2000);
+                Thread.sleep(2000); // delay da fabricacao
+
+                // apos fabricado, cria entrega e insere na fila de entregas
+                System.out.println("Fabricante " + name + " terminou " + venda.codigoVenda);
+
+                Entrega entrega = new Entrega(venda.codigoVenda, venda.produto);
+
+                espacosEntregas.acquire();
+                mutexEntregas.acquire();
+                filaEntregas.insertEntrega(entrega);
+                mutexEntregas.release();
+                itensEntregas.release();
 
             } catch (InterruptedException e) {
                 System.out.println("Ocorreu um erro");

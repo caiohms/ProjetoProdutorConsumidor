@@ -2,26 +2,41 @@ package Exercicio;
 
 import java.util.concurrent.Semaphore;
 
-// Versão 1
+// Versão 2
 
 public class Main {
 
     public static void main(String[] args) {
 
-        // QUANTAS VENDAS CABEM NA FILA DE VENDAS?
+        // QUANTAS VENDAS CABEM NA FILA DE VENDAS/ENTREGAS?
         final int tamanhoFila = 100;
 
-        FilaVenda filaVenda = new FilaVenda(tamanhoFila);
+        FilaVenda filaVendas = new FilaVenda(tamanhoFila);
+        FilaEntrega filaEntregas = new FilaEntrega(tamanhoFila);
 
-        Semaphore mutex = new Semaphore(1);
-        Semaphore itens = new Semaphore(0);
-        Semaphore espacos = new Semaphore(tamanhoFila);
+        Semaphore mutexVendas = new Semaphore(1);
+        Semaphore mutexEntregas = new Semaphore(1);
 
-        Loja lojaA = new Loja("A", filaVenda, mutex, itens, espacos);
+        /*
+         nota: decidir a limitação entre os semáforos ou lógica nas funções insert e remove nas classes FilaEntrega e
+         FilaVenda. ambas estão implementadas.
+        */
+        Semaphore itensFilaVendas = new Semaphore(0);
+        Semaphore espacosFilaVendas = new Semaphore(tamanhoFila);
 
-        Fabricante fabricanteA = new Fabricante("A", filaVenda, mutex, itens, espacos);
+        Semaphore itensFilaEntregas = new Semaphore(0);
+        Semaphore espacosFilaEntregas = new Semaphore(tamanhoFila);
+
+        Loja lojaA = new Loja("A", filaVendas, mutexVendas, itensFilaVendas, espacosFilaVendas);
+
+        Fabricante fabricanteA = new Fabricante("A", filaVendas, filaEntregas, mutexVendas, itensFilaVendas,
+                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas);
+
+        Transportadora transportadoraA = new Transportadora("A", mutexEntregas, itensFilaEntregas,
+                espacosFilaEntregas, filaEntregas);
 
         lojaA.start();
         fabricanteA.start();
+        transportadoraA.start();
     }
 }

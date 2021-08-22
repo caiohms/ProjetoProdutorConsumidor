@@ -7,6 +7,5 @@ public class Venda {
     public Venda(String nomeLoja, long numeroVenda, String produto) {
         this.codigoVenda = nomeLoja + numeroVenda;
         this.produto = produto;
-        System.out.println("Venda gerada: " + nomeLoja + numeroVenda);
     }
 }
