@@ -8,6 +8,8 @@ public class Fabricante extends Thread {
     FilaVenda filaVenda;
     FilaEntrega filaEntregas;
     Semaphore mutexVendas, itensVendas, espacosVendas, mutexEntregas, itensEntregas, espacosEntregas;
+    int[] producaoSimultanea = {4, 1, 4, 4};
+    int[] producaoDisponivel;
 
     public Fabricante(String name, FilaVenda filaVenda, FilaEntrega filaEntregas, Semaphore mutexVendas,
                       Semaphore itensVendas, Semaphore espacosVendas, Semaphore mutexEntregas, Semaphore itensEntregas,
@@ -21,16 +23,35 @@ public class Fabricante extends Thread {
         this.mutexEntregas = mutexEntregas;
         this.itensEntregas = itensEntregas;
         this.espacosEntregas = espacosEntregas;
+        this.producaoDisponivel = new int[]{0};
+        this.producaoDisponivel[0] = getProducaoSimultanea();
     }
 
     public void run() {
-        while (true) {
-            // o fabricante deve remover itens da fila de vendas
-            // e esperar um tempo ate concluir
 
-            // manipulacao do array filaVenda deve estar em mutex
+        // padrao scoreboard
+        // https://greenteapress.com/semaphores/LittleBookOfSemaphores.pdf
+        // secao 5.1
+        //
+        // nao faz sentido, assim que o numero maximo de threads for atingido, a thread que zerou o contador ira
+        // sinalizar para o gerenciador que o limite foi atingido e este liberará mais 4 threads sem saber se todas
+        // as threads finalizaram execução? usar um semaphore só com 4 permits parece resolver... (nao testei).
+        // controlar acesso com uma variavel + mutex parece funcionar.
+
+        Semaphore scoreboardMutex = new Semaphore(1);
+        int c = 0;
+        while (true) {
 
             try {
+                // limitador padrao scoreboard... acho que eh isso
+                scoreboardMutex.acquire();
+                {
+                    while (producaoDisponivel[0] == 0) {
+                        Thread.sleep(10);
+                    }
+                    producaoDisponivel[0]--;
+                }
+                scoreboardMutex.release();
 
                 itensVendas.acquire();
                 mutexVendas.acquire();
@@ -38,20 +59,15 @@ public class Fabricante extends Thread {
                 mutexVendas.release();
                 espacosVendas.release();
 
-                System.out.println("Fabricante " + name + " processando venda " + venda.codigoVenda);
+                //System.out.println("Fabricante " + name + " processando venda " + venda.codigoVenda);
 
-                Thread.sleep(2000); // delay da fabricacao
+                Fabricacao fabricacao = new Fabricacao(venda, name, filaEntregas, mutexEntregas, itensEntregas,
+                        espacosEntregas, producaoDisponivel);
 
-                // apos fabricado, cria entrega e insere na fila de entregas
-                System.out.println("Fabricante " + name + " terminou " + venda.codigoVenda);
+                fabricacao.start();
 
-                Entrega entrega = new Entrega(venda.codigoVenda, venda.produto);
 
-                espacosEntregas.acquire();
-                mutexEntregas.acquire();
-                filaEntregas.insertEntrega(entrega);
-                mutexEntregas.release();
-                itensEntregas.release();
+
 
             } catch (InterruptedException e) {
                 System.out.println("Ocorreu um erro");
@@ -60,4 +76,7 @@ public class Fabricante extends Thread {
         }
     }
 
+    public int getProducaoSimultanea() {
+        return producaoSimultanea[(int) name.charAt(0) - (int) "A".charAt(0)];
+    }
 }

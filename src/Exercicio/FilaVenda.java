@@ -16,8 +16,11 @@ public class FilaVenda {
     public void insertVenda(Venda venda) {
         while (true) {
             // talvez seja desnecessario pois o semaphore deve controlar o limite
+
+            // na verdade esse while true provavelmente vai travar sem o semaphore
             if (FilaVendas.size() < maxSize) {
                 FilaVendas.add(venda);
+                System.out.println("                                                  QSIZE = " + FilaVendas.size());
                 return;
             }
         }

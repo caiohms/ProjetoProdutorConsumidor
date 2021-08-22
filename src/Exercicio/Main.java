@@ -2,11 +2,13 @@ package Exercicio;
 
 import java.util.concurrent.Semaphore;
 
-// Versão 3
+// Versão 4
 
 public class Main {
 
     public static void main(String[] args) {
+
+        // 1 minuto = 10ms
 
         // QUANTAS VENDAS CABEM NA FILA DE VENDAS/ENTREGAS?
         final int tamanhoFila = 100;
@@ -20,6 +22,12 @@ public class Main {
         /*
          nota: decidir a limitação entre os semáforos ou lógica nas funções insert e remove nas classes FilaEntrega e
          FilaVenda. ambas estão implementadas.
+        */
+
+        /*
+        nota 2: acho que esses semáforos não são necessários porque assim que as lojas geram as compras os fabricantes
+        imediatamente as assumem, deixando o size da queue sempre em 1..
+
         */
         Semaphore itensFilaVendas = new Semaphore(0);
         Semaphore espacosFilaVendas = new Semaphore(tamanhoFila);
