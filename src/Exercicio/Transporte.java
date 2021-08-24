@@ -1,5 +1,6 @@
 package Exercicio;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
@@ -12,6 +13,7 @@ public class Transporte extends Thread {
     String nomeTransportadora;
     Entrega entrega;
     Semaphore sbMutex;
+    ArrayList<Long> tEntregaLog;
     int[] transportesDisponiveis;
 
     int[][] temposDeEntrega = {
@@ -19,31 +21,24 @@ public class Transporte extends Thread {
             {4000, 6000}
     };
 
-    public Transporte(String nomeTransportadora, Entrega entrega, Semaphore sbMutex, int[] transportesDisponiveis) {
+    public Transporte(String nomeTransportadora, Entrega entrega, Semaphore sbMutex, int[] transportesDisponiveis,
+                      ArrayList<Long> tEntregaLog) {
         this.nomeTransportadora = nomeTransportadora;
         this.entrega = entrega;
         this.sbMutex = sbMutex;
         this.transportesDisponiveis = transportesDisponiveis;
+        this.tEntregaLog = tEntregaLog;
     }
 
     public void run() {
+        System.out.println("Transportadora " + nomeTransportadora + " iniciou entrega: " + entrega.codigoVenda);
+        aguardarEntrega(nomeTransportadora); // delay
+        System.out.println("Transportadora " + nomeTransportadora + " entregou " + entrega.codigoVenda);
+        transportesDisponiveis[0]++;
 
-        try {
-            sbMutex.acquire();
-            {
-                while (transportesDisponiveis[0] == 0) {
-                    Thread.sleep(10);
-                }
-                transportesDisponiveis[0]--;
-            }
-            sbMutex.release();
+        long tempoConsumido = System.nanoTime() - entrega.inicioEntrega;
 
-            aguardarEntrega(nomeTransportadora); // delay
-            System.out.println("Transportadora " + nomeTransportadora + " entregou " + entrega.codigoVenda);
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        tEntregaLog.add(tempoConsumido);
     }
 
     public void aguardarEntrega(String nomeTransportadora) {

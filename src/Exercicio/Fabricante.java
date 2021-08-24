@@ -1,5 +1,6 @@
 package Exercicio;
 
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 public class Fabricante extends Thread {
@@ -10,10 +11,13 @@ public class Fabricante extends Thread {
     Semaphore mutexVendas, itensVendas, espacosVendas, mutexEntregas, itensEntregas, espacosEntregas;
     int[] producaoSimultanea = {4, 1, 4, 4};
     int[] producaoDisponivel;
+    ArrayList<Long> tFabricacaoLog;
+
+    public int[] itensFabricados = {0};
 
     public Fabricante(String name, FilaVenda filaVenda, FilaEntrega filaEntregas, Semaphore mutexVendas,
                       Semaphore itensVendas, Semaphore espacosVendas, Semaphore mutexEntregas, Semaphore itensEntregas,
-                      Semaphore espacosEntregas) {
+                      Semaphore espacosEntregas, ArrayList<Long> tFabricacaoLog) {
         this.name = name;
         this.filaVenda = filaVenda;
         this.filaEntregas = filaEntregas;
@@ -25,6 +29,7 @@ public class Fabricante extends Thread {
         this.espacosEntregas = espacosEntregas;
         this.producaoDisponivel = new int[]{0};
         this.producaoDisponivel[0] = getProducaoSimultanea();
+        this.tFabricacaoLog = tFabricacaoLog;
     }
 
     public void run() {
@@ -41,6 +46,7 @@ public class Fabricante extends Thread {
         Semaphore scoreboardMutex = new Semaphore(1);
         int c = 0;
         while (true) {
+
 
             try {
                 // limitador padrao scoreboard... acho que eh isso
@@ -62,12 +68,11 @@ public class Fabricante extends Thread {
                 //System.out.println("Fabricante " + name + " processando venda " + venda.codigoVenda);
 
                 Fabricacao fabricacao = new Fabricacao(venda, name, filaEntregas, mutexEntregas, itensEntregas,
-                        espacosEntregas, producaoDisponivel);
+                        espacosEntregas, producaoDisponivel, tFabricacaoLog);
 
                 fabricacao.start();
 
-
-
+                itensFabricados[0]++;
 
             } catch (InterruptedException e) {
                 System.out.println("Ocorreu um erro");

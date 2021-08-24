@@ -1,16 +1,36 @@
 package Exercicio;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import javax.swing.*;
+import java.util.*;
 
 public class FilaVenda {
 
-    public Queue<Venda> FilaVendas;
-    public int maxSize;
+    private Queue<Venda> filaVendas;
+    private int maxSize;
 
     public FilaVenda(int maxSize) {
-        this.FilaVendas = new LinkedList<>();
+        this.filaVendas = new LinkedList<>();
         this.maxSize = maxSize;
+    }
+
+    public DefaultListModel<String> getListModel() {
+
+        DefaultListModel<String> model = new DefaultListModel<>();
+
+        // copiamos a queue para nao a modificarmos enquanto a iteramos.. ainda assim pode acontecer de modificarmos
+        // enquanto estamos copiando, resultando em ArrayIndexOutOfBoundsException. entao apenas ignoramos a exception
+        try {
+            Queue<Venda> q = new LinkedList<>(filaVendas);
+            for (Venda v : q) {
+                model.addElement(v.codigoVenda);
+            }
+        } catch (Exception ignored) {
+        }
+        return model;
+    }
+
+    public int getSize() {
+        return filaVendas.size();
     }
 
     public void insertVenda(Venda venda) {
@@ -18,9 +38,8 @@ public class FilaVenda {
             // talvez seja desnecessario pois o semaphore deve controlar o limite
 
             // na verdade esse while true provavelmente vai travar sem o semaphore
-            if (FilaVendas.size() < maxSize) {
-                FilaVendas.add(venda);
-                System.out.println("                                                  QSIZE = " + FilaVendas.size());
+            if (filaVendas.size() < maxSize) {
+                filaVendas.add(venda);
                 return;
             }
         }
@@ -29,8 +48,8 @@ public class FilaVenda {
     public Venda removeVenda() {
         while (true) {
             // talvez seja desnecessario pois o semaphore deve controlar o limite
-            if (!FilaVendas.isEmpty()) {
-                return FilaVendas.remove();
+            if (!filaVendas.isEmpty()) {
+                return filaVendas.remove();
             }
         }
     }

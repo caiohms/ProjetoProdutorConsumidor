@@ -1,5 +1,6 @@
 package Exercicio;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
@@ -13,6 +14,8 @@ public class Fabricacao extends Thread {
     String nomeFabricante;
     FilaEntrega filaEntregas;
     Semaphore mutex, itens, espacos;
+    ArrayList<Long> tFabricacaoLog;
+
     int[] producaoDisponivel;
 
     int[][][] tabalaIntervalos = {
@@ -26,7 +29,7 @@ public class Fabricacao extends Thread {
                     {12000, 14000}}};
 
     public Fabricacao(Venda venda, String nomeFabricante, FilaEntrega filaEntregas, Semaphore mutex, Semaphore itens,
-                      Semaphore espacos, int[] producaoDisponivel) {
+                      Semaphore espacos, int[] producaoDisponivel, ArrayList<Long> tFabricacaoLog) {
         this.venda = venda;
         this.nomeFabricante = nomeFabricante;
         this.filaEntregas = filaEntregas;
@@ -34,19 +37,23 @@ public class Fabricacao extends Thread {
         this.itens = itens;
         this.espacos = espacos;
         this.producaoDisponivel = producaoDisponivel;
+        this.tFabricacaoLog = tFabricacaoLog;
     }
 
     public void run() {
-
         System.out.println("Fabricante " + nomeFabricante + " iniciou producao: " + venda.codigoVenda);
         aguardarProducao(nomeFabricante, venda.produto); // delay
-
-        // apos fabricado, cria entrega e insere na fila de entregas
         System.out.println("Fabricante " + nomeFabricante + " terminou: " + venda.codigoVenda);
-
         producaoDisponivel[0]++;
 
-        Entrega entrega = new Entrega(venda.codigoVenda, venda.produto);
+        // apos fabricado, cria entrega e insere na fila de entregas
+
+        long tempoConsumido = System.nanoTime() - venda.inicioFabricacao;
+
+        tFabricacaoLog.add(tempoConsumido);
+
+        long inicioEntrega = System.nanoTime();
+        Entrega entrega = new Entrega(venda.codigoVenda, venda.produto, inicioEntrega);
         entregar(entrega);
     }
 

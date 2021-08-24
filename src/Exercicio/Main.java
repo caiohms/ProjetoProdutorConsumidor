@@ -1,12 +1,20 @@
 package Exercicio;
 
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 // Versão 4
 
 public class Main {
 
+    public static long startTime;
+
     public static void main(String[] args) {
+
+        ArrayList<Long> tFabricacaoLog = new ArrayList<>();
+        ArrayList<Long> tEntregaLog = new ArrayList<>();
+
+        startTime = System.nanoTime();
 
         // 1 minuto = 10ms
 
@@ -22,12 +30,6 @@ public class Main {
         /*
          nota: decidir a limitação entre os semáforos ou lógica nas funções insert e remove nas classes FilaEntrega e
          FilaVenda. ambas estão implementadas.
-        */
-
-        /*
-        nota 2: acho que esses semáforos não são necessários porque assim que as lojas geram as compras os fabricantes
-        imediatamente as assumem, deixando o size da queue sempre em 1..
-
         */
         Semaphore itensFilaVendas = new Semaphore(0);
         Semaphore espacosFilaVendas = new Semaphore(tamanhoFila);
@@ -45,18 +47,18 @@ public class Main {
         Loja lojaH = new Loja("H", filaVendas, mutexVendas, itensFilaVendas, espacosFilaVendas);
 
         Fabricante fabricanteA = new Fabricante("A", filaVendas, filaEntregas, mutexVendas, itensFilaVendas,
-                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas);
+                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas, tFabricacaoLog);
         Fabricante fabricanteB = new Fabricante("B", filaVendas, filaEntregas, mutexVendas, itensFilaVendas,
-                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas);
+                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas, tFabricacaoLog);
         Fabricante fabricanteC = new Fabricante("C", filaVendas, filaEntregas, mutexVendas, itensFilaVendas,
-                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas);
+                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas, tFabricacaoLog);
         Fabricante fabricanteD = new Fabricante("D", filaVendas, filaEntregas, mutexVendas, itensFilaVendas,
-                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas);
+                espacosFilaVendas, mutexEntregas, itensFilaEntregas, espacosFilaEntregas, tFabricacaoLog);
 
         Transportadora transportadoraA = new Transportadora("A", mutexEntregas, itensFilaEntregas,
-                espacosFilaEntregas, filaEntregas);
+                espacosFilaEntregas, filaEntregas, tEntregaLog);
         Transportadora transportadoraB = new Transportadora("B", mutexEntregas, itensFilaEntregas,
-                espacosFilaEntregas, filaEntregas);
+                espacosFilaEntregas, filaEntregas, tEntregaLog);
 
         lojaA.start();
         lojaB.start();
@@ -74,5 +76,12 @@ public class Main {
 
         transportadoraA.start();
         transportadoraB.start();
+
+        GUI myFrame = new GUI(filaVendas, filaEntregas, startTime, tFabricacaoLog, tEntregaLog,
+                fabricanteA.itensFabricados, fabricanteB.itensFabricados,fabricanteC.itensFabricados,
+                fabricanteD.itensFabricados, transportadoraA.itensTransportados, transportadoraB.itensTransportados,
+                lojaA.itensVendidos,lojaB.itensVendidos,lojaC.itensVendidos,lojaD.itensVendidos,lojaE.itensVendidos,
+                lojaF.itensVendidos,lojaG.itensVendidos,lojaH.itensVendidos);
+
     }
 }

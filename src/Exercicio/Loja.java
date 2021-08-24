@@ -5,13 +5,11 @@ import java.util.concurrent.Semaphore;
 
 public class Loja extends Thread {
 
-    String name;
-    long numeroVendas;
-    FilaVenda filaVenda;
-    Semaphore mutex;
-    Semaphore itens;
-    Semaphore espacos;
-
+    private String name;
+    private long numeroVendas;
+    private FilaVenda filaVenda;
+    private Semaphore mutex, itens, espacos;
+    public int[] itensVendidos = {0}; // GUI
 
     public Loja(String name, FilaVenda filaVenda, Semaphore mutex, Semaphore itens, Semaphore espacos) {
         this.name = name;
@@ -40,8 +38,13 @@ public class Loja extends Thread {
 
     private void realizarVenda() throws InterruptedException {
         numeroVendas++;
-        Venda venda = new Venda(name, numeroVendas, "A");
+
+        long inicioFabricacao = System.nanoTime();
+        Venda venda = new Venda(name, numeroVendas, "A", inicioFabricacao);
+
         System.out.println("Loja " + name + " gerou venda " + name + numeroVendas);
+
+        itensVendidos[0]++;
 
         espacos.acquire();
         mutex.acquire(); // talvez esses semáforos devam ficar dentro da própria funcao insertVenda()

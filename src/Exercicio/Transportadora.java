@@ -1,5 +1,6 @@
 package Exercicio;
 
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 
 public class Transportadora extends Thread {
@@ -11,8 +12,11 @@ public class Transportadora extends Thread {
     FilaEntrega filaEntregas;
     int[] transportesSimultaneos = {10, 20};
     int[] transportesDisponiveis;
+    ArrayList<Long> tEntregaLog;
+    public int[] itensTransportados = {0};
 
-    public Transportadora(String name, Semaphore mutex, Semaphore itens, Semaphore espacos, FilaEntrega filaEntregas) {
+    public Transportadora(String name, Semaphore mutex, Semaphore itens, Semaphore espacos, FilaEntrega filaEntregas,
+                          ArrayList<Long> tEntregaLog) {
         this.name = name;
         this.mutex = mutex;
         this.itens = itens;
@@ -20,6 +24,7 @@ public class Transportadora extends Thread {
         this.filaEntregas = filaEntregas;
         this.transportesDisponiveis = new int[]{0};
         this.transportesDisponiveis[0] = getTransportesSimultaneos();
+        this.tEntregaLog = tEntregaLog;
     }
 
     public void run() {
@@ -31,17 +36,30 @@ public class Transportadora extends Thread {
             // array da fila de entregas deve ser regulado por mutex.
 
             try {
+                System.out.println(transportesDisponiveis[0]);
+                scoreboardMutex.acquire();
+                {
+                    while (transportesDisponiveis[0] == 0) {
+                        Thread.sleep(10);
+                    }
+                    transportesDisponiveis[0]--;
+                }
+                scoreboardMutex.release();
+
                 itens.acquire();
                 mutex.acquire();
                 Entrega entrega = filaEntregas.removeEntrega();
                 mutex.release();
                 espacos.release();
 
-                System.out.println("Transportadora " + name + " entregando pacote da venda " + entrega.codigoVenda);
+                //System.out.println("Transportadora " + name + " entregando pacote da venda " + entrega.codigoVenda);
 
-                Transporte transporte = new Transporte(name, entrega, scoreboardMutex, transportesDisponiveis);
+                Transporte transporte = new Transporte(name, entrega, scoreboardMutex, transportesDisponiveis,
+                        tEntregaLog);
 
                 transporte.start();
+
+                itensTransportados[0]++;
 
             } catch (InterruptedException e) {
                 System.out.println("Ocorreu um erro");
