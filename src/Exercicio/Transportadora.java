@@ -6,9 +6,7 @@ import java.util.concurrent.Semaphore;
 public class Transportadora extends Thread {
 
     String name;
-    Semaphore mutex;
-    Semaphore itens;
-    Semaphore espacos;
+    Semaphore mutex,itens,espacos, mutexLog;
     FilaEntrega filaEntregas;
     int[] transportesSimultaneos = {10, 20};
     int[] transportesDisponiveis;
@@ -16,7 +14,7 @@ public class Transportadora extends Thread {
     public int[] itensTransportados = {0};
 
     public Transportadora(String name, Semaphore mutex, Semaphore itens, Semaphore espacos, FilaEntrega filaEntregas,
-                          ArrayList<Long> tEntregaLog) {
+                          ArrayList<Long> tEntregaLog, Semaphore mutexLog) {
         this.name = name;
         this.mutex = mutex;
         this.itens = itens;
@@ -25,6 +23,7 @@ public class Transportadora extends Thread {
         this.transportesDisponiveis = new int[]{0};
         this.transportesDisponiveis[0] = getTransportesSimultaneos();
         this.tEntregaLog = tEntregaLog;
+        this.mutexLog = mutexLog;
     }
 
     public void run() {
@@ -54,8 +53,8 @@ public class Transportadora extends Thread {
 
                 //System.out.println("Transportadora " + name + " entregando pacote da venda " + entrega.codigoVenda);
 
-                Transporte transporte = new Transporte(name, entrega, scoreboardMutex, transportesDisponiveis,
-                        tEntregaLog);
+                Transporte transporte = new Transporte(name, entrega, transportesDisponiveis,
+                        tEntregaLog, mutexLog);
 
                 transporte.start();
 

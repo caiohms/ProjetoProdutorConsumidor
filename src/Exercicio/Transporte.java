@@ -12,7 +12,7 @@ public class Transporte extends Thread {
 
     String nomeTransportadora;
     Entrega entrega;
-    Semaphore sbMutex;
+    Semaphore mutexLog;
     ArrayList<Long> tEntregaLog;
     int[] transportesDisponiveis;
 
@@ -21,13 +21,13 @@ public class Transporte extends Thread {
             {4000, 6000}
     };
 
-    public Transporte(String nomeTransportadora, Entrega entrega, Semaphore sbMutex, int[] transportesDisponiveis,
-                      ArrayList<Long> tEntregaLog) {
+    public Transporte(String nomeTransportadora, Entrega entrega, int[] transportesDisponiveis,
+                      ArrayList<Long> tEntregaLog, Semaphore mutexLog) {
         this.nomeTransportadora = nomeTransportadora;
         this.entrega = entrega;
-        this.sbMutex = sbMutex;
         this.transportesDisponiveis = transportesDisponiveis;
         this.tEntregaLog = tEntregaLog;
+        this.mutexLog = mutexLog;
     }
 
     public void run() {
@@ -38,7 +38,13 @@ public class Transporte extends Thread {
 
         long tempoConsumido = System.nanoTime() - entrega.inicioEntrega;
 
-        tEntregaLog.add(tempoConsumido);
+        try {
+            mutexLog.acquire();
+            tEntregaLog.add(tempoConsumido);
+            mutexLog.release();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void aguardarEntrega(String nomeTransportadora) {

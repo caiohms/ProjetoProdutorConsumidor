@@ -8,7 +8,7 @@ public class Fabricante extends Thread {
     String name;
     FilaVenda filaVenda;
     FilaEntrega filaEntregas;
-    Semaphore mutexVendas, itensVendas, espacosVendas, mutexEntregas, itensEntregas, espacosEntregas;
+    Semaphore mutexVendas, itensVendas, espacosVendas, mutexEntregas, itensEntregas, espacosEntregas, mutexLog;
     int[] producaoSimultanea = {4, 1, 4, 4};
     int[] producaoDisponivel;
     ArrayList<Long> tFabricacaoLog;
@@ -17,7 +17,7 @@ public class Fabricante extends Thread {
 
     public Fabricante(String name, FilaVenda filaVenda, FilaEntrega filaEntregas, Semaphore mutexVendas,
                       Semaphore itensVendas, Semaphore espacosVendas, Semaphore mutexEntregas, Semaphore itensEntregas,
-                      Semaphore espacosEntregas, ArrayList<Long> tFabricacaoLog) {
+                      Semaphore espacosEntregas, ArrayList<Long> tFabricacaoLog, Semaphore mutexLog) {
         this.name = name;
         this.filaVenda = filaVenda;
         this.filaEntregas = filaEntregas;
@@ -30,6 +30,7 @@ public class Fabricante extends Thread {
         this.producaoDisponivel = new int[]{0};
         this.producaoDisponivel[0] = getProducaoSimultanea();
         this.tFabricacaoLog = tFabricacaoLog;
+        this.mutexLog = mutexLog;
     }
 
     public void run() {
@@ -68,7 +69,7 @@ public class Fabricante extends Thread {
                 //System.out.println("Fabricante " + name + " processando venda " + venda.codigoVenda);
 
                 Fabricacao fabricacao = new Fabricacao(venda, name, filaEntregas, mutexEntregas, itensEntregas,
-                        espacosEntregas, producaoDisponivel, tFabricacaoLog);
+                        espacosEntregas, producaoDisponivel, tFabricacaoLog, mutexLog);
 
                 fabricacao.start();
 

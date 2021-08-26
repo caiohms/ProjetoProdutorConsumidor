@@ -34,23 +34,10 @@ public class FilaVenda {
     }
 
     public void insertVenda(Venda venda) {
-        while (true) {
-            // talvez seja desnecessario pois o semaphore deve controlar o limite
-
-            // na verdade esse while true provavelmente vai travar sem o semaphore
-            if (filaVendas.size() < maxSize) {
-                filaVendas.add(venda);
-                return;
-            }
-        }
+        filaVendas.add(venda);
     }
 
     public Venda removeVenda() {
-        while (true) {
-            // talvez seja desnecessario pois o semaphore deve controlar o limite
-            if (!filaVendas.isEmpty()) {
-                return filaVendas.remove();
-            }
-        }
+        return filaVendas.remove();
     }
 }

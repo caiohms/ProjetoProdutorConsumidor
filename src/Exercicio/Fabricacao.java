@@ -13,7 +13,7 @@ public class Fabricacao extends Thread {
     Venda venda;
     String nomeFabricante;
     FilaEntrega filaEntregas;
-    Semaphore mutex, itens, espacos;
+    Semaphore mutex, itens, espacos, mutexLog;
     ArrayList<Long> tFabricacaoLog;
 
     int[] producaoDisponivel;
@@ -29,7 +29,7 @@ public class Fabricacao extends Thread {
                     {12000, 14000}}};
 
     public Fabricacao(Venda venda, String nomeFabricante, FilaEntrega filaEntregas, Semaphore mutex, Semaphore itens,
-                      Semaphore espacos, int[] producaoDisponivel, ArrayList<Long> tFabricacaoLog) {
+                      Semaphore espacos, int[] producaoDisponivel, ArrayList<Long> tFabricacaoLog, Semaphore mutexLog) {
         this.venda = venda;
         this.nomeFabricante = nomeFabricante;
         this.filaEntregas = filaEntregas;
@@ -38,6 +38,7 @@ public class Fabricacao extends Thread {
         this.espacos = espacos;
         this.producaoDisponivel = producaoDisponivel;
         this.tFabricacaoLog = tFabricacaoLog;
+        this.mutexLog = mutexLog;
     }
 
     public void run() {
@@ -50,7 +51,13 @@ public class Fabricacao extends Thread {
 
         long tempoConsumido = System.nanoTime() - venda.inicioFabricacao;
 
-        tFabricacaoLog.add(tempoConsumido);
+        try {
+            mutexLog.acquire();
+            tFabricacaoLog.add(tempoConsumido);
+            mutexLog.release();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         long inicioEntrega = System.nanoTime();
         Entrega entrega = new Entrega(venda.codigoVenda, venda.produto, inicioEntrega);
