@@ -22,7 +22,7 @@ public class LineChart extends JPanel {
     double yAxisRatio = 10.;
     int y = 620;
     int espacamentoX = 100;
-    long lastDayTimestamp = 0;
+    long lastDayTimestamp;
     int dayCounter = 0;
     int maxX;
 
@@ -69,40 +69,7 @@ public class LineChart extends JPanel {
         // g2.drawLine(0, 620, 2000, 0);
 
         long currentTime;
-/*
-        //utilizamos os ultimos valores calculados para desenhar o grafico... é o jeito
 
-        // isso aqui embaixo eh um crime contra a humanidade
-        // basicamente se eu ler um ArrayList enquanto uma thread modifica
-        // o java lanca um ConcurrentModificationException
-        // como nao acontece com tanta frequencia (algumas vezes por min)
-        // cometi esse crime aqui embaixo.. e funcionou
-
-        // funciona assim, a contagem de pontos calculados para o grafico eh baseada na quantidade de elementos no
-        // ArrayList updateTimestampHistory. se alguma das leituras abaixo lancar uma Exception entao todos os valores
-        // daquele frame lido sao ignorados.
-        // o grafico atualiza mais ou menos 50 vezes por segundo (sem exceptions), em velocidade maxima
-
-        // vou corrigir depois que conseguir obter a media dos valores para popular o grafico da forma certa
-        // (uma reta no grafico pra cada dia)
-        try {
-            timeFabricacoesPlotadas.add(tFabricacaoLog.get(tFabricacaoLog.size() - 1));
-            try {
-                timeEntregasPlotadas.add(tEntregaLog.get(tEntregaLog.size() - 1));
-            } catch (Exception e) {
-                timeEntregasPlotadas.add(timeEntregasPlotadas.get(timeEntregasPlotadas.size() - 1));
-//                timeFabricacoesPlotadas.remove(timeFabricacoesPlotadas.get(timeFabricacoesPlotadas.size() - 1));
-//                updateTimestampHistory.remove(updateTimestampHistory.get(updateTimestampHistory.size() - 1));
-                //e.printStackTrace();
-            }
-        } catch (Exception e) {
-            // adiciona ultimo elemento
-            timeFabricacoesPlotadas.add(timeFabricacoesPlotadas.get(timeFabricacoesPlotadas.size() - 1));
-            timeEntregasPlotadas.add(timeEntregasPlotadas.get(timeEntregasPlotadas.size() - 1));
-//            updateTimestampHistory.remove(updateTimestampHistory.get(updateTimestampHistory.size() - 1));
-            //e.printStackTrace();
-        }
-*/
         currentTime = System.nanoTime();
 
         // eixo X = updateTimestampHistory

@@ -10,6 +10,7 @@ public class Loja extends Thread {
     private FilaVenda filaVenda;
     private Semaphore mutex, itens, espacos;
     public int[] itensVendidos = {0}; // GUI
+    private final Random random = new Random();
 
     public Loja(String name, FilaVenda filaVenda, Semaphore mutex, Semaphore itens, Semaphore espacos) {
         this.name = name;
@@ -23,8 +24,6 @@ public class Loja extends Thread {
         while (true) {
             // Intervalo de tempo entre duas vendas consecutivas na mesma loja: entre 10 e 150 minutos.
             // 1 minuto = 10ms
-
-            Random random = new Random();
             try {
                 // delay entre cada venda gerada -> 100ms - 1500ms
                 Thread.sleep(100 + random.nextInt(1400));
@@ -39,8 +38,10 @@ public class Loja extends Thread {
     private void realizarVenda() throws InterruptedException {
         numeroVendas++;
 
+        String[] produtos = {"A", "B", "C", "D", "E", "F", "G", "H"};
+
         long inicioFabricacao = System.nanoTime();
-        Venda venda = new Venda(name, numeroVendas, "A", inicioFabricacao);
+        Venda venda = new Venda(name, numeroVendas, produtos[random.nextInt(8)], inicioFabricacao);
 
         System.out.println("Loja " + name + " gerou venda " + name + numeroVendas);
 
